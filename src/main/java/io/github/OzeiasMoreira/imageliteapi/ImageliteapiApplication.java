@@ -15,20 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class ImageliteapiApplication {
 
-    @Bean
-    public CommandLineRunner commandLineRunner(@Autowired ImageRepository repository) {
-        return args -> {
-            Image image = Image
-                    .builder()
-                    .extension(ImageExtension.PNG)
-                    .name("image")
-                    .tags("tags")
-                    .size(1000L)
-                    .build();
-
-            repository.save(image);
-        };
-    }
 
 	public static void main(String[] args) {
 		SpringApplication.run(ImageliteapiApplication.class, args);
