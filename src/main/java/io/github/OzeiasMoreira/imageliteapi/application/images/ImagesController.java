@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,7 @@ import java.util.List;
 public class ImagesController {
 
     private final ImageService service;
+    private final ImageMapper mapper;
 
     @PostMapping
     public ResponseEntity save(@RequestParam("file") MultipartFile file,
@@ -31,20 +34,21 @@ public class ImagesController {
     ) throws IOException {
 
         log.info("save image: name: {}, size: {}", file.getOriginalFilename(), file.getSize());
-        log.info("Content Type: {}", file.getContentType() );
-        log.info("Media Type: {}", MediaType.valueOf(file.getContentType()));
 
+        Image image = mapper.mapToImage(file, name, tags);
+        Image savedImage = service.save(image);
+        URI imageUri = buildImageURL(savedImage);
 
+        return ResponseEntity.created(imageUri).build();
+    }
 
-        Image image = Image.builder()
-                        .name(name)
-                        .tags(String.join(",", tags))
-                        .size(file.getSize())
-                        .extension(ImageExtension.valueOf(MediaType.valueOf(file.getContentType())))
-                        .file(file.getBytes())
-                        .build();
+    private URI buildImageURL(Image image) {
 
-        service.save(image);
-        return ResponseEntity.ok().build();
+        String imagePath = "/" + image.getId();
+        return ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(imagePath)
+                .build()
+                .toUri();
     }
 }
