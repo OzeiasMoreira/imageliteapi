@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -19,6 +20,16 @@ public class ImageMapper {
                 .size(file.getSize())
                 .extension(ImageExtension.valueOf(MediaType.valueOf(file.getContentType())))
                 .file(file.getBytes())
+                .build();
+    }
+
+    public ImageDTO imageToDTO(Image image, String url) {
+        return ImageDTO.builder()
+                .url(url)
+                .extension(image.getExtension().name())
+                .name(image.getName())
+                .size(image.getSize())
+                .uploadDate(image.getUploadDate().toLocalDate().atStartOfDay())
                 .build();
     }
 }
